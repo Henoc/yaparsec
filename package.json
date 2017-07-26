@@ -1,0 +1,46 @@
+{
+  "name": "yaparsec",
+  "version": "0.1.0",
+  "description": "parser combinator for typescript",
+  "scripts": {
+    "prepublish": "npm run build",
+    "build": "npm run clean && tsc",
+    "clean": "rimraf ./build/*",
+    "test": "jest --no-cache && npm run lint",
+    "lint": "tslint -c tslint.json \"src/**/*.ts\""
+  },
+  "files": [
+    "build"
+  ],
+  "author": "henoc",
+  "license": "MIT",
+  "main": "build/index.js",
+  "typings": "build/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:Henoc/yaparsec.git"
+  },
+  "dependencies": {
+    "@types/jest": "^19.2.4",
+    "@types/nock": "^8.2.1",
+    "nock": "^9.0.13"
+  },
+  "devDependencies": {
+    "jest": "^20.0.4",
+    "jest-cli": "^20.0.4",
+    "rimraf": "^2.6.1",
+    "ts-jest": "^20.0.6",
+    "tslint": "^5.4.3",
+    "typescript": "^2.3.4"
+  },
+  "jest": {
+    "transform": {
+      ".(ts)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "/__tests__/.*-test\\.ts$",
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ]
+  }
+}

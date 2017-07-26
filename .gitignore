@@ -1,0 +1,11 @@
+build
+npm-debug.log
+node_modules
+*.pid
+spec/helpers/*.js
+*.log
+junitresults.xml
+coverage
+.DS_Store
+.env
+.idea/
