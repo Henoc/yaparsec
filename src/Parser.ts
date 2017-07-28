@@ -1,4 +1,4 @@
-import { ParseError } from "./err";
+
 /**
  * Parser is like a function expect some input to parse.
  */
@@ -154,7 +154,7 @@ export class Failure<T> implements ParseResult<T> {
     return new Failure<U>(this.rest, this.message);
   }
   getResult(): T {
-    throw new ParseError("no result in failure");
+    throw "no result in failure";
   }
 }
 
