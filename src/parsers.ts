@@ -9,7 +9,7 @@ export function literal(str: string): Parser<string> {
     if (input.startsWith(str)) {
       return new Success(input.substr(str.length), str);
     } else {
-      return new Failure(input, `input does not start with ${str}`);
+      return new Failure<string>(input, `input does not start with ${str}`);
     }
   });
 }
@@ -25,7 +25,7 @@ export function regex(regex: string): Parser<string> {
       const rest = input.replace(r, "");
       return new Success(rest, result);
     } else {
-      return new Failure(input, `input does not match with regex ${regex}`);
+      return new Failure<string>(input, `input does not match with regex ${regex}`);
     }
   });
 }
@@ -33,4 +33,4 @@ export function regex(regex: string): Parser<string> {
 /**
  * Decimal number parser
  */
-export const decimal = regex("0|([1-9][0-9]*)");
+export const decimal: Parser<number> = regex("0|([1-9][0-9]*)").map(elem => Number(elem));

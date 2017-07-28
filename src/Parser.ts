@@ -97,6 +97,36 @@ export class Parser<T> {
   guard(): Parser<undefined> {
     return andPred(() => this);
   }
+
+  /**
+   * ( ~> )
+   * same as sequence, but discard left result
+   */
+  saveR<U>(q: () => Parser<U>): Parser<U> {
+    return this.then(q).map(tpl => tpl[1]);
+  }
+
+  /**
+   * ( <~ )
+   * same as sequence, but discard right result
+   */
+  saveL<U>(q: () => Parser<U>): Parser<T> {
+    return this.then(q).map(tpl => tpl[0]);
+  }
+
+  /**
+   * 2nd parser depends on the result of the 1st parser.
+   */
+  into<U>(fq: (t: T) => Parser<U>): Parser<U> {
+    return new Parser<U>(input => {
+      const ret = this.of(input);
+      if (ret instanceof Success) {
+        return fq(ret.result).of(ret.rest);
+      } else {
+        return new Failure<U>(input, (<Failure<T>>ret).message);
+      }
+    });
+  }
 }
 
 /**
