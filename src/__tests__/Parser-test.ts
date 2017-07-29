@@ -1,4 +1,4 @@
-import { Parser } from "./../Parser";
+import { Parser, seq } from "./../Parser";
 import { literal, regex, decimal } from "./../parsers";
 
 test("literal", () => {
@@ -18,7 +18,7 @@ test("regex", () => {
 test("white spaces & then & rep", () => {
     const digitParser = regex("[0-9]");
     const digit3Parser = digitParser.then(() => digitParser).then(() => digitParser);
-    const parsed = digit3Parser.of("1 2 3 4");
+    const parsed = digit3Parser.of("1   2  3 4");
     expect(parsed.getResult()).toEqual([["1", "2"], "3"]);
     expect(parsed.rest).toBe(" 4");
 
@@ -57,3 +57,19 @@ test("calc", () => {
     expect(expr().of("(7 - 1) / (1 + 2)").getResult()).toBe(2);
 
 });
+
+test("seq", () => {
+    const seqParser = seq(() => literal("apple"), () => literal("banana"), () => literal("orange"));
+    const parsed = seqParser.of("applebananaorangelemon");
+    expect(parsed.getResult()).toEqual(["apple", "banana", "orange"]);
+    expect(parsed.rest).toBe("lemon");
+});
+
+test("rep1sep", () => {
+    const r1sParser = decimal.rep1sep(() => literal(","));
+    const parsed = r1sParser.of("1,2,3,5,8,13");
+    expect(parsed.getResult()).toEqual([1, 2, 3, 5, 8, 13]);
+    expect(parsed.rest).toBe("");
+});
+
+

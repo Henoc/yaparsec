@@ -1,3 +1,7 @@
+/**
+ * Other useful parsers.
+ */
+
 import { Parser, Success, Failure } from "./Parser";
 
 /**
@@ -5,32 +9,53 @@ import { Parser, Success, Failure } from "./Parser";
  * @param str expect string
  */
 export function literal(str: string): Parser<string> {
-  return new Parser<string>(input => {
-    if (input.startsWith(str)) {
-      return new Success(input.substr(str.length), str);
-    } else {
-      return new Failure<string>(input, `input does not start with ${str}`);
-    }
-  });
+  return new Parser<string>(
+    input => {
+      if (input.startsWith(str)) {
+        return new Success(input.substr(str.length), str);
+      } else {
+        return new Failure<string>(input, `input does not start with ${str}`, `literal[${str}]`);
+      }
+    },
+    `literal[${str}]`
+  );
+}
+
+/**
+ * Same as literal function
+ */
+export function lt(str: string): Parser<String> {
+  return literal(str);
 }
 
 /**
  * Parse string matches the regex
  */
-export function regex(regex: string): Parser<string> {
-  const r = new RegExp(regex);
-  return new Parser<string>(input => {
-    if (input.search(r) === 0) {
-      const result = r.exec(input)![0];
-      const rest = input.replace(r, "");
-      return new Success(rest, result);
-    } else {
-      return new Failure<string>(input, `input does not match with regex ${regex}`);
-    }
-  });
+export function regex(regexp: string): Parser<string> {
+  const r = new RegExp(regexp);
+  return new Parser<string>(
+    input => {
+      if (input.search(r) === 0) {
+        const result = r.exec(input)![0];
+        const rest = input.replace(r, "");
+        return new Success(rest, result);
+      } else {
+        return new Failure<string>(input, `input does not match with regex ${regexp}`, `regex[${regexp}]`);
+      }
+    },
+    `regex[${regexp}]`
+  );
+}
+
+/**
+ * Same as regex function
+ */
+export function r(regexp: string): Parser<string> {
+  return regex(regexp);
 }
 
 /**
  * Decimal number parser
  */
-export const decimal: Parser<number> = regex("0|([1-9][0-9]*)").map(elem => Number(elem));
+export const decimal: Parser<number> = regex("0|([1-9][0-9]*)").map(elem => Number(elem)).named("decimal");
+
