@@ -50,7 +50,7 @@ export function regex(regexp: string | RegExp): Parser<string> {
 /**
  * Same as regex function
  */
-export function r(regexp: string): Parser<string> {
+export function r(regexp: string | RegExp): Parser<string> {
   return regex(regexp);
 }
 

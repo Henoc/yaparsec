@@ -10,9 +10,9 @@ test("literal", () => {
 
 test("regex", () => {
     const numberParser = regex(/[0-9]+/);
-    const parsed = numberParser.of("003000abcd");
+    const parsed = numberParser.of("003000abcd100");
     expect(parsed.getResult()).toBe("003000");
-    expect(parsed.rest).toBe("abcd");
+    expect(parsed.rest).toBe("abcd100");
 });
 
 test("white spaces & then & rep", () => {
