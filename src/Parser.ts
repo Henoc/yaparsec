@@ -1,23 +1,23 @@
+import { Input } from "./Input";
+
 
 /**
  * Parser is like a function expect some input to parse.
  */
 export class Parser<T> {
 
-  /**
-   * Characters that literal parser ignores.
-   */
-  public whiteSpace: RegExp = /^\s+/;
-  private fn: (input: string) => ParseResult<T>;
+  private fn: (input: Input) => ParseResult<T>;
 
-  constructor(fn: (input: string) => ParseResult<T>, public name: string) {
-    this.fn = inp => {
+  constructor(fn: (input: Input) => ParseResult<T>, public name: string) {
+    this.fn = input => {
       // trim white spaces
-      let execResult = this.whiteSpace.exec(inp);
-      if (execResult !== null) {
-        inp = inp.substr(execResult[0].length);
+      if (input.whitespace) {
+        let execResult = input.whitespace.exec(input.source);
+        if (execResult !== null) {
+          input = input.copy(input.source.substr(execResult[0].length));
+        }
       }
-      return fn(inp);
+      return fn(input);
     };
   }
 
@@ -30,10 +30,16 @@ export class Parser<T> {
   }
 
   /**
-   * Parse input!
+   * Parse input! if `input` is string, skips whitespace `/^\s+/` when parsing.
    */
-  of(input: string): ParseResult<T> {
-    return this.fn(input);
+  of(input: Input | string): ParseResult<T> {
+    let src: Input;
+    if (typeof input === "string") {
+      src = new Input(input, /^\s+/);
+    } else {
+      src = input;
+    }
+    return this.fn(src);
   }
 
   map<U>(mapper: (e: T) => U): Parser<U> {
@@ -154,13 +160,13 @@ export class Parser<T> {
  * `Success` or `Failure`.
  */
 export interface ParseResult<T> {
-  rest: string;
+  rest: Input;
   getResult(): T;
   map<U>(fn: (e: T) => U): ParseResult<U>;
 }
 
 export class Success<T> implements ParseResult<T> {
-  constructor(public rest: string, public result: T) {}
+  constructor(public rest: Input, public result: T) {}
   getResult(): T {
     return this.result;
   }
@@ -170,7 +176,7 @@ export class Success<T> implements ParseResult<T> {
 }
 
 export class Failure<T> implements ParseResult<T> {
-  constructor(public rest: string, public message: string, public parserName: string) {}
+  constructor(public rest: Input, public message: string, public parserName: string) {}
   map<U>(fn: (e: T) => U): Failure<U> {
     return new Failure<U>(this.rest, this.message, this.parserName);
   }
