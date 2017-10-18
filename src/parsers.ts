@@ -31,13 +31,13 @@ export function lt(str: string): Parser<String> {
 /**
  * Parse string matches the regex
  */
-export function regex(regexp: string): Parser<string> {
-  const r = new RegExp(regexp);
+export function regex(regexp: string | RegExp): Parser<string> {
+  const r = typeof regexp === "string" ? new RegExp(regexp) : regexp;
   return new Parser<string>(
     input => {
       if (input.search(r) === 0) {
         const result = r.exec(input)![0];
-        const rest = input.replace(r, "");
+        const rest = input.substr(result.length);
         return new Success(rest, result);
       } else {
         return new Failure<string>(input, `input does not match with regex ${regexp}`, `regex[${regexp}]`);
@@ -50,7 +50,7 @@ export function regex(regexp: string): Parser<string> {
 /**
  * Same as regex function
  */
-export function r(regexp: string): Parser<string> {
+export function r(regexp: string | RegExp): Parser<string> {
   return regex(regexp);
 }
 

@@ -9,14 +9,14 @@ test("literal", () => {
 });
 
 test("regex", () => {
-    const numberParser = regex("[0-9]+");
-    const parsed = numberParser.of("003000abcd");
+    const numberParser = regex(/[0-9]+/);
+    const parsed = numberParser.of("003000abcd100");
     expect(parsed.getResult()).toBe("003000");
-    expect(parsed.rest).toBe("abcd");
+    expect(parsed.rest).toBe("abcd100");
 });
 
 test("white spaces & then & rep", () => {
-    const digitParser = regex("[0-9]");
+    const digitParser = regex(/[0-9]/);
     const digit3Parser = digitParser.then(() => digitParser).then(() => digitParser);
     const parsed = digit3Parser.of("1   2  3 4");
     expect(parsed.getResult()).toEqual([["1", "2"], "3"]);
