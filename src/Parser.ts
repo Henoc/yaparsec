@@ -7,18 +7,15 @@ export class Parser<T> {
   /**
    * Characters that literal parser ignores.
    */
-  public whiteSpace: string = " \n\r\t";
+  public whiteSpace: RegExp = /^\s+/;
   private fn: (input: string) => ParseResult<T>;
 
   constructor(fn: (input: string) => ParseResult<T>, public name: string) {
     this.fn = inp => {
       // trim white spaces
-      while (inp !== "") {
-        if (this.whiteSpace.includes(inp.charAt(0))) {
-          inp = inp.substr(1);
-        } else {
-          break;
-        }
+      let execResult = this.whiteSpace.exec(inp);
+      if (execResult !== null) {
+        inp = inp.substr(execResult[0].length);
       }
       return fn(inp);
     };
