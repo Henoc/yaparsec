@@ -57,5 +57,5 @@ export function r(regexp: string | RegExp): Parser<string> {
 /**
  * Decimal number parser
  */
-export const decimal: Parser<number> = regex("0|([1-9][0-9]*)").map(elem => Number(elem)).named("decimal");
-
+export const decimal: Parser<number> = regex(/[+-]?[0-9]+(\.[0-9]*)?([eE][+-]?[0-9]+)?/).map(elem => Number(elem)).named("decimal");
+export const integer: Parser<number> = regex(/[+-]?\d+/).map(elem => Number(elem)).named("integer");

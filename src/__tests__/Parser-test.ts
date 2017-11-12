@@ -1,6 +1,7 @@
 import { Input } from "./../Input";
 import { Parser, seq } from "./../Parser";
 import { literal, regex, decimal } from "./../parsers";
+import { integer } from "../index";
 
 test("literal", () => {
     const abcParser = literal("abc");
@@ -82,5 +83,16 @@ test("control whitespaces", () => {
     expect(parsed1.getResult()[0][1]).toBe("  hello");
     const parsed2 = basicXml.of(new Input("<a>xxxhello</a>", /^x+/));
     expect(parsed2.getResult()[0][1]).toBe("hello");
+});
+
+test("decimal, integer", () => {
+    const decimals = ["123.45", "0.61902E+04", "5"];
+    decimals.forEach(sample => {
+        expect(decimal.of(sample).getResult()).toBe(parseFloat(sample));
+    });
+    const integers = ["20", "-437", "+823"];
+    integers.forEach(sample => {
+        expect(integer.of(sample).getResult()).toBe(parseInt(sample, 10));
+    });
 });
 
