@@ -24,7 +24,7 @@ export function literal(str: string): Parser<string> {
 /**
  * Same as literal function
  */
-export function lt(str: string): Parser<String> {
+export function lt(str: string): Parser<string> {
   return literal(str);
 }
 
