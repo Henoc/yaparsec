@@ -1,6 +1,6 @@
 {
   "name": "yaparsec",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "parser combinator for typescript",
   "scripts": {
     "prepublish": "npm run build",
@@ -18,7 +18,7 @@
   "typings": "build/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git@github.com:Henoc/yaparsec.git"
+    "url": "https://github.com/Henoc/yaparsec"
   },
   "dependencies": {},
   "devDependencies": {
