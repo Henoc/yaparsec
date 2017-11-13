@@ -48,6 +48,19 @@ Implemented functions are based on PEG (Parsing Expression Grammar). You can fin
 |r(regexp)|parse any string match `regexp`|
 |decimal|decimal number parser|
 
+## Input
+
+Input type is string or `Input`. You can manage regex as whitespace when useing `Input`.  If string, the default regex `/^\s+/` is selected.
+
+```typescript
+// Space or `,` char sequence is treated as whitespace
+someparser.of(new Input(inputString, /^[\s,]+/));
+```
+
+## Result
+
+Parse result type is `Success<T>` or `Failure<T>`, `T` is the content type. `Success<T>` has two contents, parse result and rest input. You can get the parse result to use `getResult()` in `Success<T>`. If fail, `Failure<T>` has three contents, rest input, error message and the parser name. There are in order to determine the cause of errors.
+
 ## License
 
 Yaparsec is available under the MIT license.
