@@ -96,3 +96,8 @@ test("decimal, integer", () => {
     });
 });
 
+test("right recursion", () => {
+    const aStarB: Parser<string> = literal("b").or(() => literal("a").then(() => aStarB).map(ret => ret[0] + ret[1]));
+    expect(aStarB.of("aaaabbbbb").getResult()).toBe("aaaab");
+});
+

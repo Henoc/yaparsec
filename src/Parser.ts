@@ -42,6 +42,13 @@ export class Parser<T> {
     return this.fn(src);
   }
 
+  /**
+   * Parse input, same as `of`
+   */
+  parse(input: Input | string): ParseResult<T> {
+    return this.of(input);
+  }
+
   map<U>(mapper: (e: T) => U): Parser<U> {
     return new Parser<U>(input => this.of(input).map(mapper), "map");
   }

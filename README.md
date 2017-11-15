@@ -18,7 +18,7 @@ import { literal } from "yaparsec";
 
 // literal parsing
 const abcParser = literal("abc");
-const parsedResult = abcParser.of("abcdefg"); // input: "abcdef"
+const parsedResult = abcParser.of("abcdefg"); // input: "abcdefg"
 console.log(parsedResult); // Success { rest: 'defg', result: 'abc' }
 ```
 
@@ -47,6 +47,8 @@ Implemented functions are based on PEG (Parsing Expression Grammar). You can fin
 |lt(str)|parse specified string `str`|
 |r(regexp)|parse any string match `regexp`|
 |decimal|decimal number parser|
+|integer|integer number parser|
+|email|email parser|
 
 ## Input
 
@@ -60,6 +62,15 @@ someparser.of(new Input(inputString, /^[\s,]+/));
 ## Result
 
 Parse result type is `Success<T>` or `Failure<T>`, `T` is the content type. `Success<T>` has two contents, parse result and rest input. You can get the parse result to use `getResult()` in `Success<T>`. If fail, `Failure<T>` has three contents, rest input, error message and the parser name. There are in order to determine the cause of errors.
+
+## Recursion
+
+Arguments that require another parsers are all lazy, so you can use right recursion.
+
+```typescript
+// a*b parser
+const aStarB: Parser<string> = literal("b").or(() => literal("a").then(() => aStarB).map(ret => ret[0] + ret[1]));
+```
 
 ## License
 

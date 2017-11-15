@@ -55,7 +55,16 @@ export function r(regexp: string | RegExp): Parser<string> {
 }
 
 /**
- * Decimal number parser
+ * Decimal number parser (ex 3.14)
  */
 export const decimal: Parser<number> = regex(/[+-]?[0-9]+(\.[0-9]*)?([eE][+-]?[0-9]+)?/).map(elem => Number(elem)).named("decimal");
+
+/**
+ * Integer number parser
+ */
 export const integer: Parser<number> = regex(/[+-]?\d+/).map(elem => Number(elem)).named("integer");
+
+/**
+ * Email parser. The regex is the same as `input[type=email]` in HTML5.
+ */
+export const email: Parser<string> = regex(/[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*/).named("email");

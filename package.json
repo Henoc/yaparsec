@@ -1,6 +1,6 @@
 {
   "name": "yaparsec",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "parser combinator for typescript",
   "scripts": {
     "prepublish": "npm run build",
