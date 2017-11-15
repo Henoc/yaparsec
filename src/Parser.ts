@@ -21,6 +21,7 @@ export class Parser<T> {
     };
   }
 
+
   /**
    * Set parser name
    */
@@ -56,12 +57,12 @@ export class Parser<T> {
   /**
    * sequence
    */
-  then<U>(q: () => Parser<U>): Parser<[T, U]> {
+  then<U>(q: Parser<U> | (() => Parser<U>) ): Parser<[T, U]> {
     return new Parser<[T, U]>(
       input => {
         const ret = this.of(input);
         if (ret instanceof Success) {
-          return q().of(ret.rest).map<[T, U]>(result2 => [ret.result, result2]);
+          return force(q).of(ret.rest).map<[T, U]>(result2 => [ret.result, result2]);
         } else {
           return new Failure<[T, U]>(input, (<Failure<T>>ret).message, (<Failure<T>>ret).parserName);
         }
@@ -73,14 +74,14 @@ export class Parser<T> {
   /**
    * ordered choice
    */
-  or<U>(q: () => Parser<U>): Parser<T | U> {
+  or<U>(q: Parser<U> | (() => Parser<U>)): Parser<T | U> {
     return new Parser<T | U>(
       input => {
         const ret = this.of(input);
         if (ret instanceof Success) {
           return ret;
         } else {
-          return q().of(input);
+          return force(q).of(input);
         }
       },
       "or"
@@ -126,7 +127,7 @@ export class Parser<T> {
    * ( ~> )
    * same as sequence, but discard left result
    */
-  saveR<U>(q: () => Parser<U>): Parser<U> {
+  saveR<U>(q: Parser<U> | (() => Parser<U>)): Parser<U> {
     return this.then(q).map(tpl => tpl[1]).named("saveR");
   }
 
@@ -134,7 +135,7 @@ export class Parser<T> {
    * ( <~ )
    * same as sequence, but discard right result
    */
-  saveL<U>(q: () => Parser<U>): Parser<T> {
+  saveL<U>(q: Parser<U> | (() => Parser<U>)): Parser<T> {
     return this.then(q).map(tpl => tpl[0]).named("saveL");
   }
 
@@ -158,8 +159,16 @@ export class Parser<T> {
   /**
    * Repeatedly use one or more `this` parser, separated by `sep`. Accumulate only the results of `this` parser.
    */
-  rep1sep(sep: () => Parser<any>): Parser<T[]> {
+  rep1sep(sep: Parser<any> | (() => Parser<any>)): Parser<T[]> {
     return rep1sep(() => this, sep);
+  }
+}
+
+function force<T>(p: Parser<T> | (() => Parser<T>)): Parser<T> {
+  if (p instanceof Parser) {
+    return p;
+  } else {
+    return p();
   }
 }
 
@@ -206,10 +215,10 @@ export function failure<T>(message: string): Parser<T> {
   return new Parser<T>(input => new Failure<T>(input, message, "failure"), "failure");
 }
 
-export function option<T>(p: () => Parser<T>): Parser<T | undefined> {
+export function option<T>(p: Parser<T> | (() => Parser<T>)): Parser<T | undefined> {
   return new Parser<T | undefined>(
     input => {
-      const ret = p().of(input);
+      const ret = force(p).of(input);
       if (ret instanceof Success) {
         return ret;
       } else {
@@ -220,13 +229,13 @@ export function option<T>(p: () => Parser<T>): Parser<T | undefined> {
   );
 }
 
-export function repeat<T>(p: () => Parser<T>): Parser<T[]> {
+export function repeat<T>(p: Parser<T> | (() => Parser<T>)): Parser<T[]> {
   return new Parser<T[]>(
     input => {
       let rest = input;
       const results: T[] = [];
       while (true) {
-        const ret = p().of(rest);
+        const ret = force(p).of(rest);
         if (ret instanceof Success) {
           rest = ret.rest;
           results.push(ret.result);
@@ -240,19 +249,19 @@ export function repeat<T>(p: () => Parser<T>): Parser<T[]> {
   );
 }
 
-export function repeat1<T>(p: () => Parser<T>): Parser<T[]> {
-  return p().then(() => p().rep()).map(cons => {
+export function repeat1<T>(p: Parser<T> | (() => Parser<T>)): Parser<T[]> {
+  return force(p).then(force(p).rep()).map(cons => {
     cons[1].unshift(cons[0]);
     return cons[1];
   }).named("repeat1");
 }
 
-export function notPred<T>(p: () => Parser<T>): Parser<undefined> {
+export function notPred<T>(p: Parser<T> | (() => Parser<T>)): Parser<undefined> {
   return new Parser<undefined>(
     input => {
-      const ret = p().of(input);
+      const ret = force(p).of(input);
       if (ret instanceof Success) {
-        return new Failure<undefined>(input, `enable to parse input in ${p().name}`, "notPred");
+        return new Failure<undefined>(input, `enable to parse input in ${force(p).name}`, "notPred");
       } else {
         return new Success<undefined>(input, undefined);
       }
@@ -261,14 +270,14 @@ export function notPred<T>(p: () => Parser<T>): Parser<undefined> {
   );
 }
 
-export function andPred<T>(p: () => Parser<T>): Parser<undefined> {
+export function andPred<T>(p: Parser<T> | (() => Parser<T>)): Parser<undefined> {
   return new Parser<undefined>(
     input => {
-      const ret = p().of(input);
+      const ret = force(p).of(input);
       if (ret instanceof Success) {
         return new Success<undefined>(input, undefined);
       } else {
-        return new Failure<undefined>(input, `unable to parse input in ${p().name}`, "andPred");
+        return new Failure<undefined>(input, `unable to parse input in ${force(p).name}`, "andPred");
       }
     },
     "andPred"
@@ -278,13 +287,13 @@ export function andPred<T>(p: () => Parser<T>): Parser<undefined> {
 /**
  * Sequence parser that has many sub parsers.
  */
-export function sequence<T>(...ps: (() => Parser<T>)[]): Parser<T[]> {
+export function sequence<T>(...ps: (Parser<T> | (() => Parser<T>))[]): Parser<T[]> {
   return new Parser<T[]>(
     input => {
       const result: T[] = [];
       let rest = input;
       for (let p of ps) {
-        const ret = p().of(rest);
+        const ret = force(p).of(rest);
         if (ret instanceof Success) {
           rest = ret.rest;
           result.push(ret.result);
@@ -301,12 +310,12 @@ export function sequence<T>(...ps: (() => Parser<T>)[]): Parser<T[]> {
 /**
  * Same as sequence function
  */
-export function seq<T>(...ps: (() => Parser<T>)[]): Parser<T[]> {
+export function seq<T>(...ps: (Parser<T> | (() => Parser<T>))[]): Parser<T[]> {
   return sequence(...ps);
 }
 
-export function rep1sep<T>(p: () => Parser<T>, sep: () => Parser<any>): Parser<T[]> {
-  return p().then(() => (sep().then(p)).rep()).map(ret => {
+export function rep1sep<T>(p: Parser<T> | (() => Parser<T>), sep: Parser<any> | (() => Parser<any>)): Parser<T[]> {
+  return force(p).then(() => (force(sep).then(p)).rep()).map(ret => {
     const result: T[] = [ret[0]];
     for (let pair of ret[1]) {
       result.push(pair[1]);

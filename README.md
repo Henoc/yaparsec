@@ -32,16 +32,16 @@ Implemented functions are based on PEG (Parsing Expression Grammar). You can fin
 |:---------|:------------|
 |p.of(input)|take input for parser `p`|
 |p.map(fn)|map the parse result of `p` with `fn`|
-|p.then(() => q)|sequence parser|
-|p.or(() => q)|ordered choice parser (try `q` only if `p` fails)|
+|p.then(q)|sequence parser|
+|p.or(q)|ordered choice parser (try `q` only if `p` fails)|
 |p.rep()|`p*`|
 |p.rep1()|`p+`|
-|p.rep1sep(() => q)|`p(qp)*`|
+|p.rep1sep(q)|`p(qp)*`|
 |p.opt()|`p?`|
 |p.not()|success if input does **not** start with `p`|
 |p.guard()|success if input starts with `p`, without consuming input|
-|p.saveR(() => q)|same as sequence, but discard left result (~>)|
-|p.saveL(() => q)|same as sequence, but discard right result (<~)|
+|p.saveR(q)|same as sequence, but discard left result (~>)|
+|p.saveL(q)|same as sequence, but discard right result (<~)|
 |p.into(fq)|2nd parser depends on the result of the 1st parser (>>)|
 |seq(...ps)|sequence parser that has many sub parsers|
 |lt(str)|parse specified string `str`|
@@ -49,6 +49,10 @@ Implemented functions are based on PEG (Parsing Expression Grammar). You can fin
 |decimal|decimal number parser|
 |integer|integer number parser|
 |email|email parser|
+
+## Parser
+
+Type of parsers is `Parser<T>`, `T` means the result type of parsing.
 
 ## Input
 
@@ -65,11 +69,11 @@ Parse result type is `Success<T>` or `Failure<T>`, `T` is the content type. `Suc
 
 ## Recursion
 
-Arguments that require another parsers are all lazy, so you can use right recursion.
+Arguments that require another parsers can all be lazy, so you can use right recursion.
 
 ```typescript
 // a*b parser
-const aStarB: Parser<string> = literal("b").or(() => literal("a").then(() => aStarB).map(ret => ret[0] + ret[1]));
+const aStarB: Parser<string> = literal("b").or((literal("a").then(() => aStarB).map(ret => ret[0] + ret[1]));
 ```
 
 ## License

@@ -19,7 +19,7 @@ test("regex", () => {
 
 test("skip whitespaces & then & rep", () => {
     const digitParser = regex(/[0-9]/);
-    const digit3Parser = digitParser.then(() => digitParser).then(() => digitParser);
+    const digit3Parser = digitParser.then(digitParser).then(digitParser);
     const parsed = digit3Parser.of("1   2  3 4");
     expect(parsed.getResult()).toEqual([["1", "2"], "3"]);
     expect(parsed.rest.source).toBe(" 4");
@@ -32,10 +32,10 @@ test("skip whitespaces & then & rep", () => {
 
 test("calc", () => {
     function factor(): Parser<number> {
-        return decimal.or(() => literal("(").saveR(() => expr()).saveL(() => literal(")")));
+        return decimal.or(literal("(").saveR(() => expr()).saveL(literal(")")));
     }
     function term(): Parser<number> {
-        return factor().into(n => (literal("*").or(() => literal("/"))).then(() => factor()).rep().map(lst => {
+        return factor().into(n => (literal("*").or(literal("/"))).then(() => factor()).rep().map(lst => {
             let ret = n;
             for (let elem of lst) {
                 if (elem[0] === "*") ret *= elem[1];
@@ -45,7 +45,7 @@ test("calc", () => {
         }));
     }
     function expr(): Parser<number> {
-        return term().into(n => (literal("+").or(() => literal("-"))).then(() => term()).rep().map(lst => {
+        return term().into(n => (literal("+").or(literal("-"))).then(() => term()).rep().map(lst => {
             let ret = n;
             for (let elem of lst) {
                 if (elem[0] === "+") ret += elem[1];
@@ -61,14 +61,14 @@ test("calc", () => {
 });
 
 test("seq", () => {
-    const seqParser = seq(() => literal("apple"), () => literal("banana"), () => literal("orange"));
+    const seqParser = seq(literal("apple"), literal("banana"), literal("orange"));
     const parsed = seqParser.of("applebananaorangelemon");
     expect(parsed.getResult()).toEqual(["apple", "banana", "orange"]);
     expect(parsed.rest.source).toBe("lemon");
 });
 
 test("rep1sep", () => {
-    const r1sParser = decimal.rep1sep(() => literal(","));
+    const r1sParser = decimal.rep1sep(literal(","));
     const parsed = r1sParser.of("1,2,3,5,8,13");
     expect(parsed.getResult()).toEqual([1, 2, 3, 5, 8, 13]);
     expect(parsed.rest.source).toBe("");
@@ -78,7 +78,7 @@ test("control whitespaces", () => {
     const begin = regex(/<\s*[a-zA-Z][0-9a-zA-Z]*\s*>/);
     const end = regex(/<\s*\/\s*[a-zA-Z][0-9a-zA-Z]*\s*>/);
     const text = regex(/[^<>]+/);
-    const basicXml = begin.then(() => text).then(() => end);
+    const basicXml = begin.then(text).then(end);
     const parsed1 = basicXml.of(new Input("<a>  hello</a>", undefined));        // no skip
     expect(parsed1.getResult()[0][1]).toBe("  hello");
     const parsed2 = basicXml.of(new Input("<a>xxxhello</a>", /^x+/));
