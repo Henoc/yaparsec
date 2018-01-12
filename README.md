@@ -18,7 +18,7 @@ import { literal } from "yaparsec";
 
 // literal parsing
 const abcParser = literal("abc");
-const parsedResult = abcParser.of("abcdefg"); // input: "abcdefg"
+const parsedResult = abcParser.parse("abcdefg"); // input: "abcdefg"
 console.log(parsedResult); // Success { rest: 'defg', result: 'abc' }
 ```
 
@@ -30,7 +30,7 @@ Implemented functions are based on PEG (Parsing Expression Grammar). You can fin
 
 | function | description |
 |:---------|:------------|
-|p.of(input)|take input for parser `p`|
+|p.parse(input)|take input for parser `p`|
 |p.map(fn)|map the parse result of `p` with `fn`|
 |p.then(q)|sequence parser|
 |p.or(q)|ordered choice parser (try `q` only if `p` fails)|

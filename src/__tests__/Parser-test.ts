@@ -7,14 +7,14 @@ test("literal", () => {
     const abcParser = literal("abc");
     const parsed = abcParser.of("abcdefg");
     expect(parsed.getResult()).toBe("abc");
-    expect(parsed.rest.source).toBe("defg");
+    expect(parsed.rest.index).toBe(3);
 });
 
 test("regex", () => {
     const numberParser = regex(/[0-9]+/);
     const parsed = numberParser.of("003000abcd100");
     expect(parsed.getResult()).toBe("003000");
-    expect(parsed.rest.source).toBe("abcd100");
+    expect(parsed.rest.index).toBe(6);
 });
 
 test("skip whitespaces & then & rep", () => {
@@ -22,12 +22,12 @@ test("skip whitespaces & then & rep", () => {
     const digit3Parser = digitParser.then(digitParser).then(digitParser);
     const parsed = digit3Parser.of("1   2  3 4");
     expect(parsed.getResult()).toEqual([["1", "2"], "3"]);
-    expect(parsed.rest.source).toBe(" 4");
+    expect(parsed.rest.index).toBe(8);
 
     const digitStarParser = digitParser.rep();
     const parsed2 = digitStarParser.of("1 2 3 4 a");
     expect(parsed2.getResult()).toEqual(["1", "2", "3", "4"]);
-    expect(parsed2.rest.source).toBe(" a");
+    expect(parsed2.rest.index).toBe(7);
 });
 
 test("calc", () => {
@@ -64,14 +64,14 @@ test("seq", () => {
     const seqParser = seq(literal("apple"), literal("banana"), literal("orange"));
     const parsed = seqParser.of("applebananaorangelemon");
     expect(parsed.getResult()).toEqual(["apple", "banana", "orange"]);
-    expect(parsed.rest.source).toBe("lemon");
+    expect(parsed.rest.index).toBe(17);
 });
 
 test("rep1sep", () => {
     const r1sParser = decimal.rep1sep(literal(","));
     const parsed = r1sParser.of("1,2,3,5,8,13");
     expect(parsed.getResult()).toEqual([1, 2, 3, 5, 8, 13]);
-    expect(parsed.rest.source).toBe("");
+    expect(parsed.rest.index).toBe(12);
 });
 
 test("control whitespaces", () => {
@@ -79,9 +79,9 @@ test("control whitespaces", () => {
     const end = regex(/<\s*\/\s*[a-zA-Z][0-9a-zA-Z]*\s*>/);
     const text = regex(/[^<>]+/);
     const basicXml = begin.then(text).then(end);
-    const parsed1 = basicXml.of(new Input("<a>  hello</a>", undefined));        // no skip
+    const parsed1 = basicXml.of(new Input("<a>  hello</a>", 0, undefined));        // no skip
     expect(parsed1.getResult()[0][1]).toBe("  hello");
-    const parsed2 = basicXml.of(new Input("<a>xxxhello</a>", /^x+/));
+    const parsed2 = basicXml.of(new Input("<a>xxxhello</a>", 0, /^x+/));
     expect(parsed2.getResult()[0][1]).toBe("hello");
 });
 

@@ -11,8 +11,8 @@ import { Parser, Success, Failure } from "./Parser";
 export function literal(str: string): Parser<string> {
   return new Parser<string>(
     input => {
-      if (input.source.startsWith(str)) {
-        return new Success(input.copy(input.source.substr(str.length)), str);
+      if (input.source.substr(input.index).startsWith(str)) {
+        return new Success(input.copy(input.source, input.index + str.length), str);
       } else {
         return new Failure<string>(input, `input does not start with ${str}`, `literal[${str}]`);
       }
@@ -35,9 +35,9 @@ export function regex(regexp: string | RegExp): Parser<string> {
   const r = typeof regexp === "string" ? new RegExp(regexp) : regexp;
   return new Parser<string>(
     input => {
-      if (input.source.search(r) === 0) {
-        const result = r.exec(input.source)![0];
-        const rest = input.copy(input.source.substr(result.length));
+      if (input.source.substr(input.index).search(r) === 0) {
+        const result = r.exec(input.source.substr(input.index))![0];
+        const rest = input.copy(input.source, input.index + result.length);
         return new Success(rest, result);
       } else {
         return new Failure<string>(input, `input does not match with regex ${regexp}`, `regex[${regexp}]`);

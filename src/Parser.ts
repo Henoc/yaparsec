@@ -12,9 +12,9 @@ export class Parser<T> {
     this.fn = input => {
       // trim white spaces
       if (input.whitespace) {
-        let execResult = input.whitespace.exec(input.source);
+        let execResult = input.whitespace.exec(input.source.substr(input.index));
         if (execResult !== null) {
-          input = input.copy(input.source.substr(execResult[0].length));
+          input = input.copy(input.source, input.index + execResult[0].length);
         }
       }
       return fn(input);
@@ -36,7 +36,7 @@ export class Parser<T> {
   of(input: Input | string): ParseResult<T> {
     let src: Input;
     if (typeof input === "string") {
-      src = new Input(input, /^\s+/);
+      src = new Input(input, 0, /^\s+/);
     } else {
       src = input;
     }
